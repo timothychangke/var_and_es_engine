@@ -1,0 +1,36 @@
+name: ci
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 2. Install and pin poetry
+        run: pipx install poetry==2.3.0
+
+      - name: 3. Set up python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          # action searches repository for poetry.lock and hashes that file to use as the hash key. On cache hit, itll inject the previous build environment directly into the runner
+          cache: "poetry"
+
+      - name: 4. Lockfile verification
+        run: poetry check --lock
+
+      - name: Dependency Installation
+        # poetry install simply reads the poetry lock. --no-interaction runs headless without user input
+        run: poetry install --no-interaction
+
+      # Delegates correctness to make file
+      - name: Execute the gate
+        run: make all

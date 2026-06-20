@@ -1,0 +1,74 @@
+[project]
+name = "var-engine"
+version = "0.1.0"
+description = "A reproducible Value-at-Risk calculation engine."
+authors = [
+    {name = "tim", email = "changkaien0101@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = ["structlog (>=26.1.0,<27.0.0)"]
+
+[tool.poetry]
+# poetry is set to package mode by default
+packages = [{include = "var_engine", from = "src"}]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+# Dependency groups allow you to partition your pyproject.toml so that core dependencies live separately from that of dev, testing, docs, etc. When developing locally, poetry installs everything.
+# When building to ship, only core dependencies are declared
+[dependency-groups]
+dev = [
+    "ruff (>=0.15.17,<0.16.0)",
+    "mypy (>=2.1.0,<3.0.0)",
+    "pytest (>=9.1.0,<10.0.0)",
+    "pytest-cov (>=7.1.0,<8.0.0)",
+    "pytest-benchmark (>=5.2.3,<6.0.0)",
+    "hypothesis (>=6.155.2,<7.0.0)"
+]
+
+[tool.mypy]
+# All functions must be annotated with argument types and return types as well as many other critical rules
+strict = true
+files = ["src/var_engine", "tests"]
+
+[tool.ruff]
+# The industry-standard line length
+line-length = 88
+# Match python floor version
+target-version = "py314"
+
+[tool.ruff.lint]
+select = [
+    "E",  
+    "F", 
+    "I",
+    "B",
+    "UP", 
+]
+ignore = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+# Tells pytest that all tests would be in the tests folder, so it doesnt waste time searching other folders
+testpaths = ["tests"]
+
+addopts = [
+    # Trigger pytest-cov and tell it which package to measure
+    "--cov=var_engine",
+    # Tell coverage to print out the exact line numbers you missed in the terminal
+    "--cov-report=term-missing",
+    # Treat warnings like errors
+    "-W", "error",
+    # Recognise malformed configurations
+    "--strict-markers",
+    "--strict-config"
+]
+filterwarnings = [
+  # Example of an escape hatch:
+  # "ignore::DeprecationWarning:third_party_package.*:"
+]
